@@ -1,12 +1,5 @@
-.*
-*~
 bin
 lib
 .classpath
 .project
-!.gitignore
-!.gitmodules
-!.gitkeep
-!.gitattributes
-!.mailmap
 

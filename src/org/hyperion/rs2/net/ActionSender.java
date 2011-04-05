@@ -2,6 +2,7 @@ package org.hyperion.rs2.net;
 
 import org.hyperion.rs2.Constants;
 import org.hyperion.rs2.model.Item;
+import org.hyperion.rs2.model.Location;
 import org.hyperion.rs2.model.Palette;
 import org.hyperion.rs2.model.Palette.PaletteTile;
 import org.hyperion.rs2.model.Player;
@@ -37,23 +38,6 @@ public class ActionSender {
 	}
 
 	/**
-	 * Sends an inventory interface.
-	 * 
-	 * @param interfaceId
-	 *            The interface id.
-	 * @param inventoryInterfaceId
-	 *            The inventory interface id.
-	 * @return The action sender instance, for chaining.
-	 */
-	public ActionSender sendInterfaceInventory(int interfaceId,
-			int inventoryInterfaceId) {
-		player.getInterfaceState().interfaceOpened(interfaceId);
-		player.write(new PacketBuilder(248).putShortA(interfaceId)
-				.putShort(inventoryInterfaceId).toPacket());
-		return this;
-	}
-
-	/**
 	 * Sends all the login packets.
 	 * 
 	 * @return The action sender instance, for chaining.
@@ -77,6 +61,40 @@ public class ActionSender {
 				new EquipmentContainerListener(player));
 		player.getEquipment().addListener(new WeaponContainerListener(player));
 
+		return this;
+	}
+
+	/**
+	 * Sends a configuration to the client.
+	 * 
+	 * @param id
+	 *            The configuration id.
+	 * @param value
+	 *            The configuration value.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendConfig(int id, int value) {
+		final PacketBuilder bldr = new PacketBuilder(36);
+		bldr.putLEShort(id);
+		bldr.put((byte) value);
+		player.getSession().write(bldr.toPacket());
+		return this;
+	}
+
+	/**
+	 * Toggles a configuration in the client.
+	 * 
+	 * @param id
+	 *            The configuration in the client.
+	 * @param state
+	 *            The state to write.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendConfigToggle(int id, int state) {
+		final PacketBuilder bldr = new PacketBuilder(87);
+		bldr.putLEShort(id);
+		bldr.putInt1(state);
+		player.getSession().write(bldr.toPacket());
 		return this;
 	}
 
@@ -148,6 +166,23 @@ public class ActionSender {
 		bldr.putInt1((int) player.getSkills().getExperience(skill));
 		bldr.put((byte) player.getSkills().getLevel(skill));
 		player.write(bldr.toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends an inventory interface.
+	 * 
+	 * @param interfaceId
+	 *            The interface id.
+	 * @param inventoryInterfaceId
+	 *            The inventory interface id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendInterfaceInventory(int interfaceId,
+			int inventoryInterfaceId) {
+		player.getInterfaceState().interfaceOpened(interfaceId);
+		player.write(new PacketBuilder(248).putShortA(interfaceId)
+				.putShort(inventoryInterfaceId).toPacket());
 		return this;
 	}
 
@@ -665,4 +700,63 @@ public class ActionSender {
 		player.write(new PacketBuilder(1).toPacket());
 		return this;
 	}
+
+	/**
+	 * Sends coordinates of a position.
+	 * 
+	 * @param location
+	 *            The location to find the coordinates.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendCoords(Location location) {
+		final PacketBuilder bldr = new PacketBuilder(97);
+		final int regionX = player.getLastKnownRegion().getRegionX(), regionY = player
+				.getLastKnownRegion().getRegionY();
+		bldr.putByteS((byte) (location.getY() - (regionY - 6) * 8));
+		bldr.putByteC((byte) (location.getX() - (regionX - 6) * 8));
+		player.getSession().write(bldr.toPacket());
+		return this;
+	}
+
+	/**
+	 * Removes a object from a position.
+	 * 
+	 * @param objectType
+	 *            The object type.
+	 * @param objectFace
+	 *            The facing of the object.
+	 * @param position
+	 *            The position of the object.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendRemoveObject(int objectType, int objectFace,
+			Location position) {
+		sendCoords(position);
+		final PacketBuilder bldr2 = new PacketBuilder(64);
+		bldr2.putByteC((objectType << 2) + (objectFace & 3)).put((byte) 0);
+		player.getSession().write(bldr2.toPacket());
+		return this;
+	}
+
+	/**
+	 * Add a object to a position.
+	 * 
+	 * @param objectType
+	 *            The object type.
+	 * @param objectFace
+	 *            The facing of the object.
+	 * @param position
+	 *            The position of the object.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendCreateObject(int objectId, int objectType,
+			int objectFace, Location position) {
+		sendCoords(position);
+		final PacketBuilder bldr = new PacketBuilder(236);
+		bldr.putLEShortA(objectId).putByteC(0)
+				.putByteS((byte) ((objectType << 2) + (objectFace & 3)));
+		player.getSession().write(bldr.toPacket());
+		return this;
+	}
+
 }

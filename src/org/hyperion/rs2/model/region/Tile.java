@@ -1,4 +1,4 @@
-package org.hyperion.rs2.model;
+package org.hyperion.rs2.model.region;
 
 /**
  * Represents a tile.

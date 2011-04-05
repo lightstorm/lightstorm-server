@@ -1,6 +1,6 @@
 package org.hyperion.cache.map;
 
-import org.hyperion.rs2.model.Tile;
+import org.hyperion.rs2.model.region.Tile;
 
 /**
  * A map listener is notified when a tile is parsed by a <code>MapParser</code>.
