@@ -194,6 +194,23 @@ public class ActionSender {
 	}
 
 	/**
+	 * Sends the chat privacy settings.
+	 * 
+	 * @param pub
+	 *            Public chat setting.
+	 * @param pri
+	 *            Private chat setting.
+	 * @param trade
+	 *            Trade setting.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendChatSettings(int pub, int pri, int trade) {
+		player.write(new PacketBuilder(50).put((byte) pub).put((byte) pri)
+				.put((byte) trade).toPacket());
+		return this;
+	}
+
+	/**
 	 * Sends the map region load command.
 	 * 
 	 * @return The action sender instance, for chaining.
@@ -294,9 +311,9 @@ public class ActionSender {
 			Item[] items) {
 		final PacketBuilder bldr = new PacketBuilder(34, Type.VARIABLE_SHORT)
 				.putShort(interfaceId);
-		for (int i = 0; i < slots.length; i++) {
-			final Item item = items[slots[i]];
-			bldr.putSmart(slots[i]);
+		for (final int slot : slots) {
+			final Item item = items[slot];
+			bldr.putSmart(slot);
 			if (item != null) {
 				bldr.putShort(item.getId() + 1);
 				final int count = item.getCount();
@@ -353,7 +370,7 @@ public class ActionSender {
 	 *            The string.
 	 * @return The action sender instance, for chaining.
 	 */
-	public ActionSender sendString(int id, String string) {
+	public ActionSender sendInterfaceString(int id, String string) {
 		final PacketBuilder bldr = new PacketBuilder(126, Type.VARIABLE_SHORT);
 		bldr.putRS2String(string);
 		bldr.putShortA(id);
@@ -376,6 +393,276 @@ public class ActionSender {
 		final PacketBuilder bldr = new PacketBuilder(246);
 		bldr.putLEShort(id).putShort(zoom).putShort(model);
 		player.write(bldr.toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends a interface over the chatbox.
+	 * 
+	 * @param id
+	 *            The interface id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendChatboxInterface(int id) {
+		player.write(new PacketBuilder(164).putLEShort(id).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the interface color
+	 * 
+	 * @param id
+	 *            The interface id.
+	 * @param color
+	 *            The color id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendInterfaceColor(int id, int color) {
+		player.write(new PacketBuilder(122).putLEShortA(id).putLEShortA(color)
+				.toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends a interface
+	 * 
+	 * @param id
+	 *            The interface id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendInterface(int id) {
+		player.write(new PacketBuilder(97).putShort(id).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends an interface to display in walkable mode.
+	 * 
+	 * @param id
+	 *            The interface id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendWalkableInterface(int id) {
+		player.write(new PacketBuilder(208).putShort(id).toPacket());
+		return this;
+	}
+
+	/**
+	 * Removes all open interfaces from the players screen.
+	 * 
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendClearScreen() {
+		player.write(new PacketBuilder(219).toPacket());
+		return this;
+	}
+
+	/**
+	 * Send a system update
+	 * 
+	 * @param time
+	 *            The time in seconds
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendSystemUpdate(int time) {
+		player.write(new PacketBuilder(114).putLEShort(time).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the minimap state
+	 * 
+	 * @param state
+	 *            The state (0 = normal, 1 = not clickable, 2 = blackout)
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendMinimapState(int state) {
+		player.write(new PacketBuilder(99).put((byte) state).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends a flashing sidebar
+	 * 
+	 * @param sidebar
+	 *            The sidebar id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendFlashingSidebar(int sidebar) {
+		player.write(new PacketBuilder(24).putByteA(sidebar).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sets the scrollbar position of an interface.
+	 * 
+	 * @param id
+	 *            The interface id.
+	 * @param position
+	 *            The position of the scrollbar.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendScrollPosition(int id, int position) {
+		player.write(new PacketBuilder(79).putLEShortA(id).putShortA(position)
+				.toPacket());
+		return this;
+	}
+
+	/**
+	 * Resets the game's camera position to the client default.
+	 * 
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendCameraReset() {
+		player.write(new PacketBuilder(107).toPacket());
+		return this;
+	}
+
+	/**
+	 * Makes the camera shake for the player
+	 * 
+	 * @param intensity
+	 *            The intensity of the shake
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendCameraShake(int intensity) {
+		player.write(new PacketBuilder(35).put((byte) 0).put((byte) intensity)
+				.put((byte) intensity).put((byte) intensity).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the characters weight
+	 * 
+	 * @param weight
+	 *            The amount of weight
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendWeight(int weight) {
+		player.write(new PacketBuilder(240).putShort(weight).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the characters energy level
+	 * 
+	 * @param energy
+	 *            The current energy level
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendRunEnergy(int energy) {
+		player.write(new PacketBuilder(110).put((byte) (energy & 0xff))
+				.toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the welcome screen
+	 * 
+	 * @param recovery
+	 *            Days since last recovery change (200 for not yet set, 201 for
+	 *            members server).
+	 * @param messages
+	 *            Number of unread messages.
+	 * @param warning
+	 *            Member warning (1 for member, 0 for non-member).
+	 * @param ip
+	 *            Last logged IP.
+	 * @param last
+	 *            Last logged successful login.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendWelcomeScreen(int recovery, int messages,
+			int warning, int ip, int last) {
+		final PacketBuilder bldr = new PacketBuilder(176);
+		bldr.put((byte) recovery).putShortA(messages).put((byte) warning)
+				.putInt2(ip).putShort(last);
+		player.write(bldr.toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends a private message to a player
+	 * 
+	 * @param name
+	 *            The name of player
+	 * @param messageIndex
+	 *            The message index
+	 * @param rights
+	 *            The player's right
+	 * @param message
+	 *            The message
+	 * @param messageSize
+	 *            The message size
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendPrivateMessage(long name, int messageIndex,
+			int rights, byte[] message, int messageSize) {
+		player.write(new PacketBuilder(196, Type.VARIABLE).putLong(name)
+				.putInt(messageIndex).put((byte) rights)
+				.put(message, 0, messageSize).toPacket());
+		return this;
+	}
+
+	/**
+	 * Friend server friends list load status. Loading = 0 Connecting = 1 OK = 2
+	 * 
+	 * @param status
+	 *            Value to set.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendFriendServer(int status) {
+		player.write(new PacketBuilder(221).put((byte) status).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends a friend to the friend list.
+	 * 
+	 * @param name
+	 *            The name (encoded as a long).
+	 * @param world
+	 *            The world id.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendFriend(long name, int world) {
+		player.write(new PacketBuilder(50).putLong(name).put((byte) world)
+				.toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the hashed version of all ignored player's names.
+	 * 
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendInitializeIgnoreList() {
+		player.write(new PacketBuilder(214, Type.VARIABLE_SHORT).toPacket());
+		return this;
+	}
+
+	/**
+	 * Sends the player membership flag and player list index.
+	 * 
+	 * @param membership
+	 *            Membership flag (1 = member, 0 = free).
+	 * @param index
+	 *            Player list index.
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendInitializePlayer(int membership, int index) {
+		player.write(new PacketBuilder(50).putByteA(membership)
+				.putLEShortA(index).toPacket());
+		return this;
+	}
+
+	/**
+	 * Resets all animations in the immediate area.
+	 * 
+	 * @return The action sender instance, for chaining.
+	 */
+	public ActionSender sendAnimationReset() {
+		player.write(new PacketBuilder(1).toPacket());
 		return this;
 	}
 }
