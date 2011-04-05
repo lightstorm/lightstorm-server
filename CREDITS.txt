@@ -1,0 +1,10 @@
+Graham - developer of hyperion
+Blake - developer of hyperion
+BrettR - developer of hyperion
+Vastico - item def code + data file
+Lothy - equipment code snippet
+Miss Silabsoft - some more equipment fixes
+Scu11 - found + fixed multiple bugs 
+Sub - found npc bug
+Sean - testing, ideas
+William - testing, ideas
